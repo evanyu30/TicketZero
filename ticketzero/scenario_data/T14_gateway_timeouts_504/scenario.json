@@ -1,0 +1,20 @@
+{
+  "order": 22,
+  "label": "Is our code timing out?",
+  "hint": "Platform incident (escalate) \u00b7 expected escalated",
+  "title": "T14 \u00b7 Is our code timing out?",
+  "description": "Benchmark ticket T14 (Platform incident (escalate), held_out split) on the Fog City Concierge app. Expected outcome: ESCALATED.",
+  "expected_outcome": "ESCALATED",
+  "benchmark": {
+    "id": "T14",
+    "split": "held_out",
+    "category": "Platform incident (escalate)",
+    "app_model": "google/gemma-4-31b-it",
+    "source": "ticketzero/tickets/T14_gateway_timeouts_504"
+  },
+  "ticket": {
+    "title": "Is our code timing out?",
+    "description": "Around noon UTC today our requests hung for a minute and then failed, for about 15 minutes. It's working again now. Should we raise our client timeout? Logs attached (logs.txt).",
+    "expected_behavior": ""
+  }
+}

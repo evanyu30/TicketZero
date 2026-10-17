@@ -1,4 +1,4 @@
-# TicketZero benchmark: 10 broken customer tickets
+# TicketZero benchmark: 12 broken customer tickets
 
 All synthetic test data, written at the hackathon.
 
@@ -23,29 +23,32 @@ Then, with `CRUSOE_API_KEY` set:
 ```
 python build_catalog.py --model <WORKING_MODEL_ID> --validate
 ```
-Expected result: the golden app PASSES, T01–T06, T08 and T09 FAIL, and T07 and T10 PASS (no code bug).
+Expected result: the golden app PASSES, every bug ticket FAILS, and T07, T10 and T14 PASS (no code bug).
 
 ## The tickets
+**Dev set (T01–T10):** used while building and tuning TicketZero.
+**Held-out set (T11, T14):** added later and never looked at while building. Run these only for the final score, and don't open them while tuning.
+
 | ID | Bug | Correct outcome | Split |
 |---|---|---|---|
 | T01 | Model ID retired | VERIFIED fix | dev |
 | T02 | Wrong base URL | VERIFIED fix | dev |
 | T03 | Tool calls never handled | VERIFIED fix | dev |
-| T04 | Tool args not JSON-parsed | VERIFIED fix | **held-out** |
+| T04 | Tool args not JSON-parsed | VERIFIED fix | dev |
 | T05 | max_tokens too small, JSON cut off | VERIFIED fix | dev |
-| T06 | max_tokens over context window | VERIFIED fix | **held-out** |
+| T06 | max_tokens over context window | VERIFIED fix | dev |
 | T07 | None: platform 503 outage | **ESCALATED** | dev |
 | T08 | API key read from OPENAI_API_KEY | VERIFIED fix | dev |
-| T09 | stream=True read like a normal response | VERIFIED fix | **held-out** |
-| T10 | None: intermittent platform 500s | **ESCALATED** | **held-out** |
-
-**Dev** = build and debug against these. **Held-out** = run only for the final score, so nobody tunes on them.
+| T09 | stream=True read like a normal response | VERIFIED fix | dev |
+| T10 | None: intermittent platform 500s | **ESCALATED** | dev |
+| T11 | Tool loop stops before the final answer | VERIFIED fix | **held-out** |
+| T14 | None: platform 504 timeouts | **ESCALATED** | **held-out** |
 
 ## Scoring (per ticket, for both the plain agent and TicketZero)
 - **Final status:** the agent's own claim (VERIFIED / ESCALATED / failed).
 - **Truly fixed?** Re-run `test_app.py` ourselves after the agent finishes. Never trust the agent's claim.
 - **False success:** the agent said fixed, but our tests fail. This is the headline number.
-- **Correct escalation:** T07 and T10 escalated instead of patched.
+- **Correct escalation:** T07, T10 and T14 escalated instead of patched.
 - **Attempts and tokens used.**
 
 **Baseline** = one prompt to the same Crusoe model: "Here is the ticket and app.py, return a fixed app.py." No loop, no verifier.

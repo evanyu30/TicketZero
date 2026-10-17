@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
-Builds the TicketZero benchmark: 10 broken "customer" tickets.
+Builds the TicketZero benchmark: 12 broken "customer" tickets
+(T01-T10 = dev set, T11 + T14 = held-out set, never used while building).
 
 How it works
 ------------
 There is ONE correct customer app (GOLDEN_APP below, "Fog City Concierge").
 Each ticket = that app with exactly one bug injected, plus the customer's
 complaint (ticket.md) and the same frozen acceptance tests (test_app.py).
-Two tickets have NO code bug: they are platform-side outages, and the correct
+Three tickets (T07, T10, T14) have NO code bug: they are platform-side outages, and the correct
 outcome is ESCALATED, not a patch.
 
 Usage
@@ -180,8 +181,16 @@ LOG_500 = """2026-10-16T14:02:11Z INFO  ask() request_id=req_a10233 POST /v1/cha
 2026-10-17T09:15:37Z INFO  ask() request_id=req_c9e452 POST /v1/chat/completions -> 200 OK (399 ms)  [retry of req_c9e440]
 """
 
+LOG_504 = """2026-10-17T11:58:40Z INFO  ask() request_id=req_d0a113 POST /v1/chat/completions -> 200 OK (421 ms)
+2026-10-17T12:03:12Z ERROR ask() request_id=req_d0f5e2 POST /v1/chat/completions -> 504 Gateway Timeout {"error":{"message":"upstream request timeout","type":"server_error"}} (60004 ms)
+2026-10-17T12:04:55Z ERROR weather_card() request_id=req_d10a3c POST /v1/chat/completions -> 504 Gateway Timeout {"error":{"message":"upstream request timeout","type":"server_error"}} (60001 ms)
+2026-10-17T12:09:31Z ERROR ask() request_id=req_d14b70 POST /v1/chat/completions -> 504 Gateway Timeout {"error":{"message":"upstream request timeout","type":"server_error"}} (60003 ms)
+2026-10-17T12:17:48Z INFO  ask() request_id=req_d1c9d1 POST /v1/chat/completions -> 200 OK (433 ms)
+2026-10-17T12:18:20Z INFO  weather_card() request_id=req_d1cf08 POST /v1/chat/completions -> 200 OK (389 ms)
+"""
+
 # ---------------------------------------------------------------------------
-# The 10 tickets. "bug" = list of (old_text, new_text) applied to GOLDEN_APP.
+# The tickets. "bug" = list of (old_text, new_text) applied to GOLDEN_APP.
 # ---------------------------------------------------------------------------
 TICKETS = [
     {
@@ -247,7 +256,7 @@ TICKETS = [
     {
         "id": "T04",
         "slug": "tool_args_not_parsed",
-        "split": "held_out",
+        "split": "dev",
         "category": "Function calling",
         "bug": [
             (
@@ -283,7 +292,7 @@ TICKETS = [
     {
         "id": "T06",
         "slug": "max_tokens_too_large",
-        "split": "held_out",
+        "split": "dev",
         "category": "Request parameters",
         "bug": [("\nMAX_TOKENS = 1024\n", "\nMAX_TOKENS = 4_000_000\n")],
         "ticket": (
@@ -329,7 +338,7 @@ TICKETS = [
     {
         "id": "T09",
         "slug": "stream_misread",
-        "split": "held_out",
+        "split": "dev",
         "category": "Streaming",
         "bug": [
             (
@@ -349,7 +358,7 @@ TICKETS = [
     {
         "id": "T10",
         "slug": "intermittent_500",
-        "split": "held_out",
+        "split": "dev",
         "category": "Platform incident (escalate)",
         "bug": [],
         "extra_files": {"logs.txt": LOG_500},
@@ -361,6 +370,37 @@ TICKETS = [
         "expected_status": "ESCALATED",
         "root_cause": "No customer-code bug. Intermittent 500 server_error responses that succeed on retry point to the platform.",
         "reference_fix": "Escalate with request IDs (e.g. req_a1077e, req_b330f9, req_c9e440). A retry/backoff patch is acceptable as a mitigation only if it is also escalated.",
+    },
+    {
+        "id": "T11",
+        "slug": "tool_loop_too_short",
+        "split": "held_out",
+        "category": "Function calling",
+        "bug": [("    for _ in range(3):\n", "    for _ in range(1):  # one round-trip is enough\n")],
+        "ticket": (
+            "Subject: Weather answers are empty, but the tool runs\n\n"
+            "Our logs show get_weather IS being called with the right city, but ask() still returns an "
+            "empty string. A teammate 'optimized' the request loop to save latency. weather_card() works."
+        ),
+        "expected_status": "VERIFIED",
+        "root_cause": "The loop only allows one model call, so after the tool runs the result is never sent back to the model for a final answer.",
+        "reference_fix": "Allow at least two iterations (restore range(3)).",
+    },
+    {
+        "id": "T14",
+        "slug": "gateway_timeouts_504",
+        "split": "held_out",
+        "category": "Platform incident (escalate)",
+        "bug": [],
+        "extra_files": {"logs.txt": LOG_504},
+        "ticket": (
+            "Subject: Is our code timing out?\n\n"
+            "Around noon UTC today our requests hung for a minute and then failed, for about 15 minutes. "
+            "It's working again now. Should we raise our client timeout? Logs attached (logs.txt)."
+        ),
+        "expected_status": "ESCALATED",
+        "root_cause": "No customer-code bug. A window of 504 upstream timeouts (server_error) that recovered on its own points to the platform.",
+        "reference_fix": "Do not patch. Escalate with the window and request IDs (e.g. req_d0f5e2, req_d10a3c, req_d14b70).",
     },
 ]
 

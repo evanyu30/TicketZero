@@ -29,7 +29,7 @@
   {
     "id": "T04",
     "folder": "T04_tool_args_not_parsed",
-    "split": "held_out",
+    "split": "dev",
     "category": "Function calling",
     "expected_status": "VERIFIED",
     "root_cause": "tool_call.function.arguments is a JSON string; the code passes it to get_weather(**args) without json.loads.",
@@ -47,7 +47,7 @@
   {
     "id": "T06",
     "folder": "T06_max_tokens_too_large",
-    "split": "held_out",
+    "split": "dev",
     "category": "Request parameters",
     "expected_status": "VERIFIED",
     "root_cause": "MAX_TOKENS exceeds the model's context window, so the API rejects the request.",
@@ -74,7 +74,7 @@
   {
     "id": "T09",
     "folder": "T09_stream_misread",
-    "split": "held_out",
+    "split": "dev",
     "category": "Streaming",
     "expected_status": "VERIFIED",
     "root_cause": "stream=True returns a Stream of chunks, but the code reads it like a normal response.",
@@ -83,10 +83,28 @@
   {
     "id": "T10",
     "folder": "T10_intermittent_500",
-    "split": "held_out",
+    "split": "dev",
     "category": "Platform incident (escalate)",
     "expected_status": "ESCALATED",
     "root_cause": "No customer-code bug. Intermittent 500 server_error responses that succeed on retry point to the platform.",
     "reference_fix": "Escalate with request IDs (e.g. req_a1077e, req_b330f9, req_c9e440). A retry/backoff patch is acceptable as a mitigation only if it is also escalated."
+  },
+  {
+    "id": "T11",
+    "folder": "T11_tool_loop_too_short",
+    "split": "held_out",
+    "category": "Function calling",
+    "expected_status": "VERIFIED",
+    "root_cause": "The loop only allows one model call, so after the tool runs the result is never sent back to the model for a final answer.",
+    "reference_fix": "Allow at least two iterations (restore range(3))."
+  },
+  {
+    "id": "T14",
+    "folder": "T14_gateway_timeouts_504",
+    "split": "held_out",
+    "category": "Platform incident (escalate)",
+    "expected_status": "ESCALATED",
+    "root_cause": "No customer-code bug. A window of 504 upstream timeouts (server_error) that recovered on its own points to the platform.",
+    "reference_fix": "Do not patch. Escalate with the window and request IDs (e.g. req_d0f5e2, req_d10a3c, req_d14b70)."
   }
 ]
