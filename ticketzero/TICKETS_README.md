@@ -1,0 +1,51 @@
+# TicketZero benchmark: 10 broken customer tickets
+
+All synthetic test data, written at the hackathon.
+
+## What this is
+One small correct customer app, **Fog City Concierge**, built on Crusoe Managed Inference. It answers weather questions by calling a `get_weather` tool, and it returns a JSON weather card.
+
+Each ticket folder is that app with **one bug injected**, plus:
+- `ticket.md`: the customer's complaint. This is the only thing the agent should be "told."
+- `test_app.py`: frozen acceptance tests, identical in every folder. **The Repair agent must never edit this.** Hash it before and after a run, and fail the run if the hash changes.
+- `logs.txt` (T07, T10 only): the customer's logs.
+
+`_answer_key/` holds the correct root cause and fix for each ticket. **Do not show it to the agents.** Only the scoring script reads it.
+
+## Setup
+```
+pip install -r requirements.txt
+python build_catalog.py --model <WORKING_MODEL_ID>
+```
+`<WORKING_MODEL_ID>` must come from `GET https://api.inference.crusoecloud.com/v1/models` and must have `tools` in its `supported_parameters`. Check that `--retired-model` (default `moonshotai/Kimi-K2.6`) is **not** in that list.
+
+Then, with `CRUSOE_API_KEY` set:
+```
+python build_catalog.py --model <WORKING_MODEL_ID> --validate
+```
+Expected result: the golden app PASSES, T01–T06, T08 and T09 FAIL, and T07 and T10 PASS (no code bug).
+
+## The tickets
+| ID | Bug | Correct outcome | Split |
+|---|---|---|---|
+| T01 | Model ID retired | VERIFIED fix | dev |
+| T02 | Wrong base URL | VERIFIED fix | dev |
+| T03 | Tool calls never handled | VERIFIED fix | dev |
+| T04 | Tool args not JSON-parsed | VERIFIED fix | **held-out** |
+| T05 | max_tokens too small, JSON cut off | VERIFIED fix | dev |
+| T06 | max_tokens over context window | VERIFIED fix | **held-out** |
+| T07 | None: platform 503 outage | **ESCALATED** | dev |
+| T08 | API key read from OPENAI_API_KEY | VERIFIED fix | dev |
+| T09 | stream=True read like a normal response | VERIFIED fix | **held-out** |
+| T10 | None: intermittent platform 500s | **ESCALATED** | **held-out** |
+
+**Dev** = build and debug against these. **Held-out** = run only for the final score, so nobody tunes on them.
+
+## Scoring (per ticket, for both the plain agent and TicketZero)
+- **Final status:** the agent's own claim (VERIFIED / ESCALATED / failed).
+- **Truly fixed?** Re-run `test_app.py` ourselves after the agent finishes. Never trust the agent's claim.
+- **False success:** the agent said fixed, but our tests fail. This is the headline number.
+- **Correct escalation:** T07 and T10 escalated instead of patched.
+- **Attempts and tokens used.**
+
+**Baseline** = one prompt to the same Crusoe model: "Here is the ticket and app.py, return a fixed app.py." No loop, no verifier.

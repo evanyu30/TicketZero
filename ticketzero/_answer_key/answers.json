@@ -1,0 +1,92 @@
+[
+  {
+    "id": "T01",
+    "folder": "T01_retired_model",
+    "split": "dev",
+    "category": "Model lifecycle",
+    "expected_status": "VERIFIED",
+    "root_cause": "The hard-coded MODEL id was retired from Crusoe Managed Inference; the API rejects it.",
+    "reference_fix": "Change MODEL to a current model from GET /v1/models whose supported_parameters include 'tools'."
+  },
+  {
+    "id": "T02",
+    "folder": "T02_wrong_base_url",
+    "split": "dev",
+    "category": "Configuration",
+    "expected_status": "VERIFIED",
+    "root_cause": "BASE_URL points at the wrong host; Managed Inference lives at api.inference.crusoecloud.com/v1.",
+    "reference_fix": "Set BASE_URL = 'https://api.inference.crusoecloud.com/v1'."
+  },
+  {
+    "id": "T03",
+    "folder": "T03_tool_call_ignored",
+    "split": "dev",
+    "category": "Function calling",
+    "expected_status": "VERIFIED",
+    "root_cause": "The code returns message.content immediately and never handles message.tool_calls; the new model replies with a tool call and empty content.",
+    "reference_fix": "Only return content when there are no tool_calls; otherwise run the tool and send the result back."
+  },
+  {
+    "id": "T04",
+    "folder": "T04_tool_args_not_parsed",
+    "split": "held_out",
+    "category": "Function calling",
+    "expected_status": "VERIFIED",
+    "root_cause": "tool_call.function.arguments is a JSON string; the code passes it to get_weather(**args) without json.loads.",
+    "reference_fix": "args = json.loads(tc.function.arguments)."
+  },
+  {
+    "id": "T05",
+    "folder": "T05_json_truncated",
+    "split": "dev",
+    "category": "Structured output",
+    "expected_status": "VERIFIED",
+    "root_cause": "CARD_MAX_TOKENS is too small; the reply is cut off mid-JSON (finish_reason='length').",
+    "reference_fix": "Raise CARD_MAX_TOKENS (e.g. back to 1024)."
+  },
+  {
+    "id": "T06",
+    "folder": "T06_max_tokens_too_large",
+    "split": "held_out",
+    "category": "Request parameters",
+    "expected_status": "VERIFIED",
+    "root_cause": "MAX_TOKENS exceeds the model's context window, so the API rejects the request.",
+    "reference_fix": "Set MAX_TOKENS within the model's context_length from /v1/models (e.g. 1024)."
+  },
+  {
+    "id": "T07",
+    "folder": "T07_platform_outage_503",
+    "split": "dev",
+    "category": "Platform incident (escalate)",
+    "expected_status": "ESCALATED",
+    "root_cause": "No customer-code bug. The logs show a window of 503 server_error responses that recovered on its own: a platform-side incident.",
+    "reference_fix": "Do not patch. Reproduce (it works now), then escalate with the time window and request IDs (e.g. req_7f3a91)."
+  },
+  {
+    "id": "T08",
+    "folder": "T08_wrong_api_key_env",
+    "split": "dev",
+    "category": "Migration",
+    "expected_status": "VERIFIED",
+    "root_cause": "The client reads the API key from OPENAI_API_KEY (left over from the old provider) instead of CRUSOE_API_KEY.",
+    "reference_fix": "API_KEY_ENV = 'CRUSOE_API_KEY'."
+  },
+  {
+    "id": "T09",
+    "folder": "T09_stream_misread",
+    "split": "held_out",
+    "category": "Streaming",
+    "expected_status": "VERIFIED",
+    "root_cause": "stream=True returns a Stream of chunks, but the code reads it like a normal response.",
+    "reference_fix": "Remove stream=True from ask(), or consume the stream and rebuild the message (incl. tool_calls)."
+  },
+  {
+    "id": "T10",
+    "folder": "T10_intermittent_500",
+    "split": "held_out",
+    "category": "Platform incident (escalate)",
+    "expected_status": "ESCALATED",
+    "root_cause": "No customer-code bug. Intermittent 500 server_error responses that succeed on retry point to the platform.",
+    "reference_fix": "Escalate with request IDs (e.g. req_a1077e, req_b330f9, req_c9e440). A retry/backoff patch is acceptable as a mitigation only if it is also escalated."
+  }
+]
