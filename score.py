@@ -36,6 +36,7 @@ import csv
 import hashlib
 import importlib
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -177,10 +178,16 @@ def main():
             shutil.copytree(src, workdir)
             before = sha256(workdir / "test_app.py")
             start = time.time()
+            # The agent runs from inside a temp copy of ONE ticket, outside the repo,
+            # so relative paths and repo-wide searches can't reach _answer_key/.
+            home = os.getcwd()
+            os.chdir(workdir)
             try:
                 out = solve(str(workdir), args.model) or {}
             except Exception as e:  # an agent crash counts as FAILED, not a scorer crash
                 out = {"status": "FAILED", "summary": f"agent crashed: {type(e).__name__}: {e}"[:200]}
+            finally:
+                os.chdir(home)
             seconds = round(time.time() - start, 1)
             tests_file = workdir / "test_app.py"
             tampered = (not tests_file.exists()) or sha256(tests_file) != before
