@@ -1,0 +1,20 @@
+{
+  "order": 14,
+  "label": "TypeError in tool handling",
+  "hint": "Function calling \u00b7 expected verified",
+  "title": "T04 \u00b7 TypeError in tool handling",
+  "description": "Benchmark ticket T04 (Function calling, held-out split) on the Fog City Concierge app. Expected outcome: VERIFIED.",
+  "expected_outcome": "VERIFIED",
+  "benchmark": {
+    "id": "T04",
+    "split": "held_out",
+    "category": "Function calling",
+    "app_model": "google/gemma-4-31b-it",
+    "source": "ticketzero/tickets/T04_tool_args_not_parsed"
+  },
+  "ticket": {
+    "title": "TypeError in tool handling",
+    "description": "ask() now crashes with: TypeError: get_weather() argument after ** must be a mapping, not str. A contractor 'simplified' our tool-handling code last week. weather_card() is fine.",
+    "expected_behavior": ""
+  }
+}

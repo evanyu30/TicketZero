@@ -1,0 +1,20 @@
+{
+  "order": 17,
+  "label": "Everything failed last night, is it our code?",
+  "hint": "Platform incident (escalate) \u00b7 expected escalated",
+  "title": "T07 \u00b7 Everything failed last night, is it our code?",
+  "description": "Benchmark ticket T07 (Platform incident (escalate), dev split) on the Fog City Concierge app. Expected outcome: ESCALATED.",
+  "expected_outcome": "ESCALATED",
+  "benchmark": {
+    "id": "T07",
+    "split": "dev",
+    "category": "Platform incident (escalate)",
+    "app_model": "google/gemma-4-31b-it",
+    "source": "ticketzero/tickets/T07_platform_outage_503"
+  },
+  "ticket": {
+    "title": "Everything failed last night, is it our code?",
+    "description": "Between about 02:10 and 02:40 UTC last night our concierge returned errors for every request. We didn't deploy anything. Logs attached (logs.txt). Can you fix our code?",
+    "expected_behavior": ""
+  }
+}

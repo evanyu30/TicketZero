@@ -1,0 +1,1 @@
+TicketZero embeds DM Sans and Lora fonts (SIL Open Font License) and Phosphor icons (MIT). License texts are in licenses/. Dependency licenses are also distributed with their npm packages.

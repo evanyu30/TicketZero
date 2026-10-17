@@ -1,0 +1,20 @@
+{
+  "order": 13,
+  "label": "Blank answers since switching models",
+  "hint": "Function calling \u00b7 expected verified",
+  "title": "T03 \u00b7 Blank answers since switching models",
+  "description": "Benchmark ticket T03 (Function calling, dev split) on the Fog City Concierge app. Expected outcome: VERIFIED.",
+  "expected_outcome": "VERIFIED",
+  "benchmark": {
+    "id": "T03",
+    "split": "dev",
+    "category": "Function calling",
+    "app_model": "google/gemma-4-31b-it",
+    "source": "ticketzero/tickets/T03_tool_call_ignored"
+  },
+  "ticket": {
+    "title": "Blank answers since switching models",
+    "description": "Since we switched to a newer model, ask() returns an empty string for weather questions. No error at all, just blank. weather_card() still works. Our old model used to answer these directly.",
+    "expected_behavior": ""
+  }
+}

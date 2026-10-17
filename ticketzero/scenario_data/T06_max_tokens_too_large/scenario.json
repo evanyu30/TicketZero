@@ -1,0 +1,20 @@
+{
+  "order": 16,
+  "label": "400 Bad Request on every ask()",
+  "hint": "Request parameters \u00b7 expected verified",
+  "title": "T06 \u00b7 400 Bad Request on every ask()",
+  "description": "Benchmark ticket T06 (Request parameters, held-out split) on the Fog City Concierge app. Expected outcome: VERIFIED.",
+  "expected_outcome": "VERIFIED",
+  "benchmark": {
+    "id": "T06",
+    "split": "held_out",
+    "category": "Request parameters",
+    "app_model": "google/gemma-4-31b-it",
+    "source": "ticketzero/tickets/T06_max_tokens_too_large"
+  },
+  "ticket": {
+    "title": "400 Bad Request on every ask()",
+    "description": "We raised max_tokens a lot so long answers never get cut off. Now ask() fails with a 400 Bad Request every time. weather_card() works.",
+    "expected_behavior": ""
+  }
+}

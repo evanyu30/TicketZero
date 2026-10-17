@@ -1,0 +1,20 @@
+{
+  "order": 18,
+  "label": "Auth failing after migration",
+  "hint": "Migration \u00b7 expected verified",
+  "title": "T08 \u00b7 Auth failing after migration",
+  "description": "Benchmark ticket T08 (Migration, dev split) on the Fog City Concierge app. Expected outcome: VERIFIED.",
+  "expected_outcome": "VERIFIED",
+  "benchmark": {
+    "id": "T08",
+    "split": "dev",
+    "category": "Migration",
+    "app_model": "google/gemma-4-31b-it",
+    "source": "ticketzero/tickets/T08_wrong_api_key_env"
+  },
+  "ticket": {
+    "title": "Auth failing after migration",
+    "description": "We migrated from OpenAI last week. CRUSOE_API_KEY is set in our environment and works with curl, but the app fails on startup or with authentication errors.",
+    "expected_behavior": ""
+  }
+}

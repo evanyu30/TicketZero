@@ -1,0 +1,20 @@
+{
+  "order": 15,
+  "label": "weather_card JSON broken",
+  "hint": "Structured output \u00b7 expected verified",
+  "title": "T05 \u00b7 weather_card JSON broken",
+  "description": "Benchmark ticket T05 (Structured output, dev split) on the Fog City Concierge app. Expected outcome: VERIFIED.",
+  "expected_outcome": "VERIFIED",
+  "benchmark": {
+    "id": "T05",
+    "split": "dev",
+    "category": "Structured output",
+    "app_model": "google/gemma-4-31b-it",
+    "source": "ticketzero/tickets/T05_json_truncated"
+  },
+  "ticket": {
+    "title": "weather_card JSON broken",
+    "description": "Finance asked us to cut token spend, so we tightened some limits. Now weather_card() throws a JSON decode error every time. ask() still works.",
+    "expected_behavior": ""
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "order": 12,
+  "label": "Can't connect after moving to Crusoe",
+  "hint": "Configuration \u00b7 expected verified",
+  "title": "T02 \u00b7 Can't connect after moving to Crusoe",
+  "description": "Benchmark ticket T02 (Configuration, dev split) on the Fog City Concierge app. Expected outcome: VERIFIED.",
+  "expected_outcome": "VERIFIED",
+  "benchmark": {
+    "id": "T02",
+    "split": "dev",
+    "category": "Configuration",
+    "app_model": "google/gemma-4-31b-it",
+    "source": "ticketzero/tickets/T02_wrong_base_url"
+  },
+  "ticket": {
+    "title": "Can't connect after moving to Crusoe",
+    "description": "We just moved this app to Crusoe, copying the settings from an old internal wiki page. Every call fails with a connection / not-found style error. Our API key is valid and shows up in the Crusoe console.",
+    "expected_behavior": ""
+  }
+}

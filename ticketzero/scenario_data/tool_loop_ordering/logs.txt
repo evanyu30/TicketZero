@@ -1,0 +1,4 @@
+2026-10-16T14:22:01Z INFO  agent step=1 model=nvidia/Nemotron-3-Nano-30B-A3B tool_calls=1 name=lookup_order
+2026-10-16T14:22:01Z INFO  agent tool lookup_order -> {"status": "shipped"}
+2026-10-16T14:22:02Z ERROR agent step=2 POST https://api.inference.crusoecloud.com/v1/chat/completions -> 400 {"error":{"type":"invalid_request_error","message":"Invalid message ordering: messages with role 'tool' must be a response to a preceding message with 'tool_calls'"}}
+2026-10-16T14:22:02Z ERROR agent openai.BadRequestError: Error code: 400

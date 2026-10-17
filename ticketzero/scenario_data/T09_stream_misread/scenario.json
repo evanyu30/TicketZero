@@ -1,0 +1,20 @@
+{
+  "order": 19,
+  "label": "Crash after enabling streaming",
+  "hint": "Streaming \u00b7 expected verified",
+  "title": "T09 \u00b7 Crash after enabling streaming",
+  "description": "Benchmark ticket T09 (Streaming, held-out split) on the Fog City Concierge app. Expected outcome: VERIFIED.",
+  "expected_outcome": "VERIFIED",
+  "benchmark": {
+    "id": "T09",
+    "split": "held_out",
+    "category": "Streaming",
+    "app_model": "google/gemma-4-31b-it",
+    "source": "ticketzero/tickets/T09_stream_misread"
+  },
+  "ticket": {
+    "title": "Crash after enabling streaming",
+    "description": "We turned on streaming to make our UI feel faster. Now ask() crashes with AttributeError: 'Stream' object has no attribute 'choices'.",
+    "expected_behavior": ""
+  }
+}

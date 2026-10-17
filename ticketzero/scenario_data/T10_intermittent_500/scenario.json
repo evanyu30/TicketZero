@@ -1,0 +1,20 @@
+{
+  "order": 20,
+  "label": "Random 500 errors since yesterday",
+  "hint": "Platform incident (escalate) \u00b7 expected escalated",
+  "title": "T10 \u00b7 Random 500 errors since yesterday",
+  "description": "Benchmark ticket T10 (Platform incident (escalate), held-out split) on the Fog City Concierge app. Expected outcome: ESCALATED.",
+  "expected_outcome": "ESCALATED",
+  "benchmark": {
+    "id": "T10",
+    "split": "held_out",
+    "category": "Platform incident (escalate)",
+    "app_model": "google/gemma-4-31b-it",
+    "source": "ticketzero/tickets/T10_intermittent_500"
+  },
+  "ticket": {
+    "title": "Random 500 errors since yesterday",
+    "description": "Roughly 1 in 10 requests fail with HTTP 500 since yesterday. Retrying usually works. Request IDs are in the attached logs.txt. Can you fix our code?",
+    "expected_behavior": ""
+  }
+}

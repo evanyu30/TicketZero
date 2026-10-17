@@ -1,0 +1,13 @@
+{
+  "order": 2,
+  "label": "Tool calls break after the first call",
+  "hint": "A failed fix becomes a deeper task",
+  "title": "Tool loop 400: tool message without preceding assistant tool_calls",
+  "description": "The tool-calling loop drops the assistant message before tool results and returns None when the model spends its budget reasoning. A naive first patch usually fixes only the ordering; the verifier fails it and the failure becomes a deeper child task.",
+  "expected_outcome": "VERIFIED",
+  "ticket": {
+    "title": "Agent tool loop fails with 400 after the first tool call",
+    "description": "Our support agent calls one tool and then the next chat completion request fails with HTTP 400. This started when we moved the agent to Nemotron on Crusoe Managed Inference.",
+    "expected_behavior": "The tool-calling loop completes tool calls against Nemotron models on Crusoe and returns the model's final answer text."
+  }
+}

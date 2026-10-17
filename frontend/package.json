@@ -1,0 +1,22 @@
+{
+  "name": "ticketzero-demo",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "predev": "npm run build",
+    "dev": "vite --host 127.0.0.1",
+    "build": "node build.mjs",
+    "test": "node --test qa/*.test.cjs"
+  },
+  "devDependencies": {
+    "vite": "*"
+  },
+  "dependencies": {
+    "@phosphor-icons/core": "*",
+    "@fontsource/dm-sans": "*",
+    "@fontsource/lora": "*"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  }
+}

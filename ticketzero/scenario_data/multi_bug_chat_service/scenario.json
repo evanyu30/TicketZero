@@ -1,0 +1,13 @@
+{
+  "order": 1,
+  "label": "Chat endpoint failing",
+  "hint": "Three bugs, split and fixed in parallel",
+  "title": "Chat endpoint failing: 404 model_not_found, 429s, empty content",
+  "description": "Three independent bugs in one config: old API host, deprecated Llama model, and a token limit too small for a reasoning model. The planner should split into three parallel children.",
+  "expected_outcome": "VERIFIED",
+  "ticket": {
+    "title": "Our chat endpoint started failing",
+    "description": "Our chat endpoint started failing. Some requests 404 with model_not_found, earlier requests 429'd, and when it does respond the content is empty.",
+    "expected_behavior": "Use a currently available NVIDIA Nemotron model on Crusoe and return non-empty answers."
+  }
+}

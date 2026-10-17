@@ -1,0 +1,13 @@
+{
+  "order": 3,
+  "label": "Voice audio returns 400",
+  "hint": "See when an investigation needs a handoff",
+  "title": "VoiceChat audio returns 400 (undocumented format)",
+  "description": "The customer guesses an audio payload for nvidia/Nemotron-3-VoiceChat. Crusoe has published no request format and pricing is contact-sales, so the correct outcome is a clean escalation.",
+  "expected_outcome": "ESCALATED",
+  "ticket": {
+    "title": "Voice bot returns 400 when we send audio to Nemotron VoiceChat",
+    "description": "Voice bot returns 400 when we send audio to Nemotron VoiceChat.",
+    "expected_behavior": "Get a transcript-based reply from VoiceChat."
+  }
+}

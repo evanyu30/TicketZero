@@ -1,0 +1,9 @@
+2026-10-16T14:02:11Z INFO  ask() request_id=req_a10233 POST /v1/chat/completions -> 200 OK (405 ms)
+2026-10-16T14:02:19Z INFO  ask() request_id=req_a10298 POST /v1/chat/completions -> 200 OK (391 ms)
+2026-10-16T14:03:40Z ERROR ask() request_id=req_a1077e POST /v1/chat/completions -> 500 Internal Server Error {"error":{"message":"internal error","type":"server_error"}}
+2026-10-16T14:03:44Z INFO  ask() request_id=req_a10781 POST /v1/chat/completions -> 200 OK (402 ms)  [retry of req_a1077e]
+2026-10-16T16:20:05Z INFO  weather_card() request_id=req_b3301c POST /v1/chat/completions -> 200 OK (366 ms)
+2026-10-16T16:21:57Z ERROR weather_card() request_id=req_b330f9 POST /v1/chat/completions -> 500 Internal Server Error {"error":{"message":"internal error","type":"server_error"}}
+2026-10-16T16:22:01Z INFO  weather_card() request_id=req_b33102 POST /v1/chat/completions -> 200 OK (371 ms)  [retry of req_b330f9]
+2026-10-17T09:15:33Z ERROR ask() request_id=req_c9e440 POST /v1/chat/completions -> 500 Internal Server Error {"error":{"message":"internal error","type":"server_error"}}
+2026-10-17T09:15:37Z INFO  ask() request_id=req_c9e452 POST /v1/chat/completions -> 200 OK (399 ms)  [retry of req_c9e440]

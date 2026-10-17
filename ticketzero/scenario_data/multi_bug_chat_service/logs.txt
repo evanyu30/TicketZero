@@ -1,0 +1,6 @@
+2026-10-13T08:02:11Z INFO  chat-api using base_url=https://api.crusoe.ai/v1 model=meta-llama/Llama-3.3-70B-Instruct
+2026-10-13T08:14:52Z ERROR chat-api POST https://api.crusoe.ai/v1/chat/completions -> 429 Too Many Requests {"error":{"type":"rate_limit_error","message":"Rate limit reached for requests per minute"}} headers: x-ratelimit-remaining-requests=0 Authorization: Bearer [REDACTED]
+2026-10-13T08:14:53Z ERROR chat-api retry budget exhausted for request id 7f3c2a
+2026-10-15T10:01:44Z ERROR chat-api POST https://api.crusoe.ai/v1/chat/completions -> 404 Not Found {"error":{"code":"model_not_found","message":"The model `meta-llama/Llama-3.3-70B-Instruct` does not exist or you do not have access to it."}}
+2026-10-16T09:30:10Z WARN  chat-api completion ok but empty: finish_reason=length content='' usage={"completion_tokens":64,"completion_tokens_details":{"reasoning_tokens":64}} max_tokens=64
+2026-10-16T09:30:10Z ERROR chat-api handler returned empty answer to user session 91ab

@@ -1,0 +1,7 @@
+2026-10-16T02:09:51Z INFO  ask() request_id=req_6c11d0 POST /v1/chat/completions -> 200 OK (412 ms)
+2026-10-16T02:11:04Z ERROR ask() request_id=req_7f3a91 POST /v1/chat/completions -> 503 Service Unavailable {"error":{"message":"upstream model server unavailable","type":"server_error"}}
+2026-10-16T02:14:37Z ERROR weather_card() request_id=req_7f4e02 POST /v1/chat/completions -> 503 Service Unavailable {"error":{"message":"upstream model server unavailable","type":"server_error"}}
+2026-10-16T02:22:10Z ERROR ask() request_id=req_7fa9b3 POST /v1/chat/completions -> 503 Service Unavailable {"error":{"message":"upstream model server unavailable","type":"server_error"}}
+2026-10-16T02:35:48Z ERROR ask() request_id=req_80d117 POST /v1/chat/completions -> 503 Service Unavailable {"error":{"message":"upstream model server unavailable","type":"server_error"}}
+2026-10-16T02:41:18Z INFO  ask() request_id=req_8b02cc POST /v1/chat/completions -> 200 OK (398 ms)
+2026-10-16T02:43:02Z INFO  weather_card() request_id=req_8b1f47 POST /v1/chat/completions -> 200 OK (377 ms)

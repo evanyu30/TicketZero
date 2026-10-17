@@ -1,0 +1,20 @@
+{
+  "order": 11,
+  "label": "Concierge app completely down",
+  "hint": "Model lifecycle \u00b7 expected verified",
+  "title": "T01 \u00b7 Concierge app completely down",
+  "description": "Benchmark ticket T01 (Model lifecycle, dev split) on the Fog City Concierge app. Expected outcome: VERIFIED.",
+  "expected_outcome": "VERIFIED",
+  "benchmark": {
+    "id": "T01",
+    "split": "dev",
+    "category": "Model lifecycle",
+    "app_model": "google/gemma-4-31b-it",
+    "source": "ticketzero/tickets/T01_retired_model"
+  },
+  "ticket": {
+    "title": "Concierge app completely down",
+    "description": "Hi Crusoe team. Our Fog City Concierge app worked fine last month and we haven't touched the code. This week every single request fails before we get any answer; both ask() and weather_card() error out. We need it back up today.",
+    "expected_behavior": "ask(\"What's the weather in San Francisco?\") reports the temperature from our get_weather tool."
+  }
+}
