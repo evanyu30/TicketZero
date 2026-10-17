@@ -10,7 +10,8 @@ from .util import now_iso, redact, stable_json, trunc
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS runs(id TEXT PRIMARY KEY, scenario TEXT, ticket_json TEXT, status TEXT,
     created_at TEXT, finished_at TEXT, frozen_hash TEXT, budget_json TEXT, final_patch TEXT,
-    report_md TEXT, criteria_json TEXT, reason TEXT, source_dir TEXT, read_only INT, applied_at TEXT);
+    report_md TEXT, criteria_json TEXT, reason TEXT, source_dir TEXT, read_only INT, applied_at TEXT,
+    handoff_json TEXT);
 CREATE TABLE IF NOT EXISTS nodes(id TEXT PRIMARY KEY, run_id TEXT, parent_id TEXT, depth INT,
     title TEXT, task TEXT, kind TEXT, status TEXT, reason TEXT, model_roles_json TEXT,
     worktree TEXT, patch TEXT, proof_json TEXT, replans INT, created_at TEXT, closed_at TEXT,
@@ -37,10 +38,10 @@ NODE_COLUMNS = {
 }
 RUN_COLUMNS = {
     "status", "finished_at", "frozen_hash", "final_patch", "report_md", "criteria_json", "reason", "budget_json",
-    "applied_at",
+    "applied_at", "handoff_json",
 }
 # Columns added after the first release; created on older databases at startup.
-ADDED_COLUMNS = {"runs": {"source_dir": "TEXT", "read_only": "INT", "applied_at": "TEXT"}}
+ADDED_COLUMNS = {"runs": {"source_dir": "TEXT", "read_only": "INT", "applied_at": "TEXT", "handoff_json": "TEXT"}}
 
 
 class Store:

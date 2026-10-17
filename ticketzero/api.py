@@ -209,6 +209,7 @@ def get_run(run_id: str) -> dict:
         "tokens_used_live": active.tokens_used if active else None,
         "criteria": json.loads(row["criteria_json"] or "[]"), "has_patch": bool(row["final_patch"]),
         "source_dir": row["source_dir"], "read_only": bool(row["read_only"]), "applied_at": row["applied_at"],
+        "handoff": json.loads(row["handoff_json"]) if row["handoff_json"] else None,
         "root_node_id": active.root_id if active else (root or {}).get("id"),
     }
 

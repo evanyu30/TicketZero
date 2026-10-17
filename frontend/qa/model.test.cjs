@@ -47,7 +47,15 @@ test('journey stage and status follow the run',()=>{
   assert.equal(M.stage(run('running'),[{type:'patch_proposed'}],'waiting_children'),2);
   assert.equal(M.stage(run('running'),[{type:'verify_result'}],'verifying'),3);
   assert.equal(M.stage(run('verified'),[],'verified'),4);
-  assert.equal(M.runStatus(run('escalated'),3),'Escalated · unresolved');
+  assert.equal(M.runStatus(run('escalated'),3),'Handed to a human');
   assert.equal(M.runStatus(run('running'),2),'Testing fixes');
   assert.equal(M.testCount({criteria:[{test_ids:['t1','t2']},{test_ids:['t2','t3']}]}),3);
+});
+
+test('handoff shows cause, evidence and checks, and escapes model-written text',()=>{
+  const html=M.renderHandoff({kind:'no_code_bug',summary:'s',cause:'503s <b>from</b> the platform',
+    evidence:[{kind:'log',ref:'req_7f3a91',detail:'503 at 02:11'}],checks:['Contact support with <script>x</script>']});
+  assert.match(html,/Likely cause/);assert.match(html,/req_7f3a91/);assert.match(html,/What a human should check next/);
+  assert.ok(!html.includes('<script>')&&!html.includes('<b>'));
+  assert.equal(M.renderHandoff(null),'');
 });

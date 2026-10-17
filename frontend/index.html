@@ -44,6 +44,15 @@
 .sample-list{margin-top:0;padding-bottom:10px}
 .sample-list button strong .ticket-id{color:var(--muted);font-weight:500;margin-right:6px}
 @media(max-width:760px){.sample-list{grid-template-columns:1fr}}
+/* Human handoff on an escalated outcome */
+.handoff h3,.checks-heading{font:600 17px/1.3 var(--serif);letter-spacing:-.02em;margin:22px 0 8px}
+.handoff p{font-size:15px;line-height:1.7;max-width:760px}
+.handoff-evidence,.handoff-checks{margin:0;padding-left:22px;font-size:14px;line-height:1.7}
+.handoff-evidence li,.handoff-checks li{margin:4px 0}
+.handoff-checks li::marker{color:var(--rust);font-weight:600}
+.handoff-kind{display:inline-block;font-size:11px;color:var(--muted);background:#eef0e9;border-radius:4px;padding:0 6px}
+.handoff code{font:12px ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere}
+.outcome-flow .work-heading>svg{color:var(--green)}#outcome[data-outcome=escalated] .outcome-flow .work-heading>svg{color:var(--rust)}
 </style></head>
 <body><div id="ticketzero" data-view="intake">
 <header class="topbar"><button class="wordmark" data-action="new" aria-label="TicketZero home">TicketZero</button><div class="header-actions"><span class="demo-label"><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M232,128A104,104,0,1,1,128,24,104.13,104.13,0,0,1,232,128Z"/></svg> Connecting…</span><button class="outline" id="new-issue" data-action="new"><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"/></svg> New issue</button></div></header>
@@ -184,16 +193,25 @@ function stage(run,events,rootStatus){
  if(types.has('patch_proposed')||types.has('verify_result'))return 2;
  return 1;
 }
+// The human handoff for an escalated run: why, likely cause, evidence, and what to check next. All text escaped.
+function renderHandoff(h){
+ if(!h)return '';
+ const out=['<div class="handoff">'];
+ if(h.cause)out.push('<h3>Likely cause</h3><p>'+esc(h.cause)+'</p>');
+ if((h.evidence||[]).length)out.push('<h3>Evidence</h3><ul class="handoff-evidence">'+h.evidence.map(e=>'<li><span class="handoff-kind">'+esc(e.kind)+'</span> <code>'+esc(e.ref)+'</code>'+(e.detail?' — '+esc(e.detail):'')+'</li>').join('')+'</ul>');
+ if((h.checks||[]).length)out.push('<h3>What a human should check next</h3><ol class="handoff-checks">'+h.checks.map(c=>'<li>'+esc(c)+'</li>').join('')+'</ol>');
+ out.push('</div>');return out.join('');
+}
 function runStatus(run,st){
  if(!run)return 'Starting';
- return {verified:'Verified',escalated:'Escalated · unresolved',failed:'Run failed',cancelled:'Stopped'}[run.status]
+ return {verified:'Verified',escalated:'Handed to a human',failed:'Run failed',cancelled:'Stopped'}[run.status]
   ||(st>=3?'Verifying the original goal':st===2?'Testing fixes':'Investigating');
 }
 function elapsed(fromIso,toIso){const s=Math.max(0,Math.floor((new Date(toIso||Date.now())-new Date(fromIso))/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
 function usageLine(run){const u=run.usage||{},b=(run.budget||{}).run||{};const calls=run.calls_used_live??u.llm_calls??0;
  return 'Live · '+calls+(b.max_llm_calls?' / '+b.max_llm_calls:'')+' LLM calls · '+Number(u.total_tokens||0).toLocaleString('en-US')+' tokens · $'+Number(u.cost_usd||0).toFixed(4)+' · cache '+((u.cache_hit_rate||0)*100).toFixed(0)+'%';}
 function testCount(run){return new Set((run.criteria||[]).flatMap(c=>c.test_ids||[])).size;}
-scope.TicketZeroModel={esc,tone,statusLabel,flatten,titles,layout,renderFlow,milestones,stage,runStatus,elapsed,usageLine,testCount};
+scope.TicketZeroModel={esc,tone,statusLabel,flatten,titles,layout,renderFlow,renderHandoff,milestones,stage,runStatus,elapsed,usageLine,testCount};
 })(globalThis);
 
 (function(){
@@ -359,7 +377,7 @@ function reset(){stop();live=null;history.replaceState(null,'',location.pathname
 
 // ---------------------------------------------------------------- rendering
 function setJourney(stage){root.querySelectorAll('[data-stage]').forEach(n=>{const i=+n.dataset.stage,done=stage>=4||i<stage;n.className=done?'done':i===stage?'active':'';n.querySelector('.stage-icon').innerHTML=icon(done?'check-circle-fill':i===stage?'circle-dot':'circle');if(i===stage&&stage<4)n.setAttribute('aria-current','step');else n.removeAttribute('aria-current');});}
-function flowBlock(cur){return '<div class="work-heading">'+icon(cur.run.status==='running'?'circle-notch':'check-circle-fill')+'<div><h3>How the work is divided</h3><p>Each box is one agent working on part of the problem. Parents wait for every child, merge their fixes and test again. Select a box to see its evidence.</p></div></div>'+M.renderFlow(cur.tree,cur.selected);}
+function flowBlock(cur){const st=cur.run.status;return '<div class="work-heading">'+icon(st==='running'?'circle-notch':st==='verified'?'check-circle-fill':'warning-circle')+'<div><h3>How the work is divided</h3><p>Each box is one agent working on part of the problem. Parents wait for every child, merge their fixes and test again. Select a box to see its evidence.</p></div></div>'+M.renderFlow(cur.tree,cur.selected);}
 // Re-render the flowchart only when it changed, keeping the user's scroll position.
 function renderFlowInto(container,cur){
  const key=JSON.stringify(cur.tree)+'|'+cur.selected+'|'+cur.run.status;if(container.dataset.flowKey===key)return;
@@ -403,14 +421,15 @@ function renderTimeline(cur,ms){
   return '<li class="'+(m.failed?'failed':current?'active':'')+'"><span class="milestone-icon">'+icon(m.failed?'warning-circle-fill':current?'circle-dot':'check-circle-fill')+'</span><button class="step-link" data-event="'+m.id+'"><strong>'+esc(m.title)+'</strong></button><small>'+esc(m.text)+'</small><time>'+M.elapsed(r.created_at,m.ts)+' elapsed</time></li>';}).join('');
  el('all-steps').textContent='View all '+cur.events.length+' events';
 }
-function checkRows(r){
+function checkRows(r,heading){
  const rows=(r.criteria||[]).map(c=>{const s=c.status||'pending',good=s==='pass';
   return '<div class="test-row '+(good?'good':'')+'">'+icon(good?'check-circle-fill':s==='fail'?'warning-circle':'circle')+'<div class="test-detail">'+esc(c.text)+'<small>'+esc((c.test_ids||[]).join(', '))+'</small></div><span>'+esc(good?'Passed':s==='fail'?'Failed':'Not run')+'</span></div>';});
- return rows.length?'<div class="work-list">'+rows.join('')+'</div>':'';
+ return rows.length?(heading?'<h3 class="checks-heading">'+esc(heading)+'</h3>':'')+'<div class="work-list">'+rows.join('')+'</div>':'';
 }
 function renderOutcome(cur){
  const r=cur.run,box=el('outcome');box.dataset.outcome=r.status==='verified'?'verified':'escalated';
  const titles={verified:'The tests pass. The fix is verified.',escalated:'This one needs a human look.',failed:'The run stopped with an error.',cancelled:'The run was stopped.'};
+ const h=r.status==='escalated'?r.handoff:null;
  let note;
  if(r.status==='verified'){
   const a=cur.apply;
@@ -420,9 +439,10 @@ function renderOutcome(cur){
    :a?.state==='error'?'<strong>Not written to your folder.</strong> '+esc(a.message)
    :r.applied_at?'<strong>Written to your folder</strong> at '+esc(r.applied_at)+'.'
    :'<strong>Your folder was not changed.</strong> Allow file edits before starting to have a verified fix written back, or take the patch from the report.';
- }else if(r.status==='escalated'){note='<strong>Handoff prepared.</strong> The report lists every attempt, what was ruled out, and what a human should check next. Nothing in your folder was changed.';}
+ }else if(r.status==='escalated'){note='<strong>Handed to a human.</strong> Nothing in your folder was changed. Export the report to share every attempt and its evidence.';}
  else{note='Nothing in your folder was changed.';}
- box.innerHTML='<h2>'+esc(titles[r.status]||'Finished')+'</h2><p>'+esc(r.reason||'')+'</p>'+checkRows(r)
+ const checksHeading=h?(h.kind==='no_code_bug'?'Your tests on the unchanged code':'Acceptance tests'):'';
+ box.innerHTML='<h2>'+esc(titles[r.status]||'Finished')+'</h2><p>'+esc(h?h.summary:(r.reason||''))+'</p>'+M.renderHandoff(h)+checkRows(r,checksHeading)
   +'<div class="result-note">'+note+'</div><div class="outcome-flow" id="outcome-flow"></div>'
   +'<div class="outcome-actions"><button class="primary" data-action="report">'+icon('download-simple')+' Export report</button><button class="outline" data-action="replay">Run again</button><button class="text-button" data-action="new">New issue</button></div><p class="download-status" id="download-status" role="status"></p>';
  renderFlowInto(el('outcome-flow'),cur);

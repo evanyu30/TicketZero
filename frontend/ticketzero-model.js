@@ -74,14 +74,23 @@ function stage(run,events,rootStatus){
  if(types.has('patch_proposed')||types.has('verify_result'))return 2;
  return 1;
 }
+// The human handoff for an escalated run: why, likely cause, evidence, and what to check next. All text escaped.
+function renderHandoff(h){
+ if(!h)return '';
+ const out=['<div class="handoff">'];
+ if(h.cause)out.push('<h3>Likely cause</h3><p>'+esc(h.cause)+'</p>');
+ if((h.evidence||[]).length)out.push('<h3>Evidence</h3><ul class="handoff-evidence">'+h.evidence.map(e=>'<li><span class="handoff-kind">'+esc(e.kind)+'</span> <code>'+esc(e.ref)+'</code>'+(e.detail?' — '+esc(e.detail):'')+'</li>').join('')+'</ul>');
+ if((h.checks||[]).length)out.push('<h3>What a human should check next</h3><ol class="handoff-checks">'+h.checks.map(c=>'<li>'+esc(c)+'</li>').join('')+'</ol>');
+ out.push('</div>');return out.join('');
+}
 function runStatus(run,st){
  if(!run)return 'Starting';
- return {verified:'Verified',escalated:'Escalated · unresolved',failed:'Run failed',cancelled:'Stopped'}[run.status]
+ return {verified:'Verified',escalated:'Handed to a human',failed:'Run failed',cancelled:'Stopped'}[run.status]
   ||(st>=3?'Verifying the original goal':st===2?'Testing fixes':'Investigating');
 }
 function elapsed(fromIso,toIso){const s=Math.max(0,Math.floor((new Date(toIso||Date.now())-new Date(fromIso))/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
 function usageLine(run){const u=run.usage||{},b=(run.budget||{}).run||{};const calls=run.calls_used_live??u.llm_calls??0;
  return 'Live · '+calls+(b.max_llm_calls?' / '+b.max_llm_calls:'')+' LLM calls · '+Number(u.total_tokens||0).toLocaleString('en-US')+' tokens · $'+Number(u.cost_usd||0).toFixed(4)+' · cache '+((u.cache_hit_rate||0)*100).toFixed(0)+'%';}
 function testCount(run){return new Set((run.criteria||[]).flatMap(c=>c.test_ids||[])).size;}
-scope.TicketZeroModel={esc,tone,statusLabel,flatten,titles,layout,renderFlow,milestones,stage,runStatus,elapsed,usageLine,testCount};
+scope.TicketZeroModel={esc,tone,statusLabel,flatten,titles,layout,renderFlow,renderHandoff,milestones,stage,runStatus,elapsed,usageLine,testCount};
 })(globalThis);

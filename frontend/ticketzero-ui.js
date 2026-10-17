@@ -92,7 +92,7 @@ function reset(){stop();live=null;history.replaceState(null,'',location.pathname
 
 // ---------------------------------------------------------------- rendering
 function setJourney(stage){root.querySelectorAll('[data-stage]').forEach(n=>{const i=+n.dataset.stage,done=stage>=4||i<stage;n.className=done?'done':i===stage?'active':'';n.querySelector('.stage-icon').innerHTML=icon(done?'check-circle-fill':i===stage?'circle-dot':'circle');if(i===stage&&stage<4)n.setAttribute('aria-current','step');else n.removeAttribute('aria-current');});}
-function flowBlock(cur){return '<div class="work-heading">'+icon(cur.run.status==='running'?'circle-notch':'check-circle-fill')+'<div><h3>How the work is divided</h3><p>Each box is one agent working on part of the problem. Parents wait for every child, merge their fixes and test again. Select a box to see its evidence.</p></div></div>'+M.renderFlow(cur.tree,cur.selected);}
+function flowBlock(cur){const st=cur.run.status;return '<div class="work-heading">'+icon(st==='running'?'circle-notch':st==='verified'?'check-circle-fill':'warning-circle')+'<div><h3>How the work is divided</h3><p>Each box is one agent working on part of the problem. Parents wait for every child, merge their fixes and test again. Select a box to see its evidence.</p></div></div>'+M.renderFlow(cur.tree,cur.selected);}
 // Re-render the flowchart only when it changed, keeping the user's scroll position.
 function renderFlowInto(container,cur){
  const key=JSON.stringify(cur.tree)+'|'+cur.selected+'|'+cur.run.status;if(container.dataset.flowKey===key)return;
@@ -136,14 +136,15 @@ function renderTimeline(cur,ms){
   return '<li class="'+(m.failed?'failed':current?'active':'')+'"><span class="milestone-icon">'+icon(m.failed?'warning-circle-fill':current?'circle-dot':'check-circle-fill')+'</span><button class="step-link" data-event="'+m.id+'"><strong>'+esc(m.title)+'</strong></button><small>'+esc(m.text)+'</small><time>'+M.elapsed(r.created_at,m.ts)+' elapsed</time></li>';}).join('');
  el('all-steps').textContent='View all '+cur.events.length+' events';
 }
-function checkRows(r){
+function checkRows(r,heading){
  const rows=(r.criteria||[]).map(c=>{const s=c.status||'pending',good=s==='pass';
   return '<div class="test-row '+(good?'good':'')+'">'+icon(good?'check-circle-fill':s==='fail'?'warning-circle':'circle')+'<div class="test-detail">'+esc(c.text)+'<small>'+esc((c.test_ids||[]).join(', '))+'</small></div><span>'+esc(good?'Passed':s==='fail'?'Failed':'Not run')+'</span></div>';});
- return rows.length?'<div class="work-list">'+rows.join('')+'</div>':'';
+ return rows.length?(heading?'<h3 class="checks-heading">'+esc(heading)+'</h3>':'')+'<div class="work-list">'+rows.join('')+'</div>':'';
 }
 function renderOutcome(cur){
  const r=cur.run,box=el('outcome');box.dataset.outcome=r.status==='verified'?'verified':'escalated';
  const titles={verified:'The tests pass. The fix is verified.',escalated:'This one needs a human look.',failed:'The run stopped with an error.',cancelled:'The run was stopped.'};
+ const h=r.status==='escalated'?r.handoff:null;
  let note;
  if(r.status==='verified'){
   const a=cur.apply;
@@ -153,9 +154,10 @@ function renderOutcome(cur){
    :a?.state==='error'?'<strong>Not written to your folder.</strong> '+esc(a.message)
    :r.applied_at?'<strong>Written to your folder</strong> at '+esc(r.applied_at)+'.'
    :'<strong>Your folder was not changed.</strong> Allow file edits before starting to have a verified fix written back, or take the patch from the report.';
- }else if(r.status==='escalated'){note='<strong>Handoff prepared.</strong> The report lists every attempt, what was ruled out, and what a human should check next. Nothing in your folder was changed.';}
+ }else if(r.status==='escalated'){note='<strong>Handed to a human.</strong> Nothing in your folder was changed. Export the report to share every attempt and its evidence.';}
  else{note='Nothing in your folder was changed.';}
- box.innerHTML='<h2>'+esc(titles[r.status]||'Finished')+'</h2><p>'+esc(r.reason||'')+'</p>'+checkRows(r)
+ const checksHeading=h?(h.kind==='no_code_bug'?'Your tests on the unchanged code':'Acceptance tests'):'';
+ box.innerHTML='<h2>'+esc(titles[r.status]||'Finished')+'</h2><p>'+esc(h?h.summary:(r.reason||''))+'</p>'+M.renderHandoff(h)+checkRows(r,checksHeading)
   +'<div class="result-note">'+note+'</div><div class="outcome-flow" id="outcome-flow"></div>'
   +'<div class="outcome-actions"><button class="primary" data-action="report">'+icon('download-simple')+' Export report</button><button class="outline" data-action="replay">Run again</button><button class="text-button" data-action="new">New issue</button></div><p class="download-status" id="download-status" role="status"></p>';
  renderFlowInto(el('outcome-flow'),cur);

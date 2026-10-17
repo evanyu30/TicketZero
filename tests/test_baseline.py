@@ -32,6 +32,9 @@ def test_platform_incident_escalates_without_patching(client, monkeypatch, tmp_p
     events = client.get(f"/runs/{run['id']}/events", params={"limit": 2000}).json()
     assert any(e["type"] == "plan" and e["message"].startswith("baseline: all") for e in events)
     assert "What a human should check next" in client.get(f"/runs/{run['id']}/report").text
+    handoff = run["handoff"]                                    # shown on the page, not only in the report
+    assert handoff["kind"] == "no_code_bug" and "did not happen again" in handoff["summary"]
+    assert handoff["checks"] and handoff["cause"] and handoff["evidence"]
 
 
 def test_failing_baseline_still_goes_through_the_fix_flow(client, monkeypatch):
@@ -40,6 +43,7 @@ def test_failing_baseline_still_goes_through_the_fix_flow(client, monkeypatch):
     events = client.get(f"/runs/{run['id']}/events", params={"limit": 2000}).json()
     assert any(e["message"].startswith("baseline: the failure reproduces") for e in events)
     assert run["status"] == "verified"
+    assert run["handoff"] is None
 
 
 def test_static_test_ids_when_the_app_crashes_on_import(tmp_path):

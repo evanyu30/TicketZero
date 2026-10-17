@@ -7,7 +7,7 @@ import uuid
 
 from . import config
 from .budget import ACTIVE_LOCK, ACTIVE_RUNS, NODE_CAP_FIELDS, NodeBudget, RunBudget, RunState
-from .reports import criteria_status, escalation_checks, usage_summary, write_report
+from .reports import build_handoff, criteria_status, escalation_checks, usage_summary, write_report
 from .resolver import Resolver
 from .store import store
 from .tasks import NodeResult, TaskSpec
@@ -67,8 +67,9 @@ def finish_run(run: RunState, result: NodeResult) -> None:
     report = write_report(run, result, crit, next_checks)
     if status == "escalated":
         (run.sandbox.run_dir / "escalation.md").write_text(report, encoding="utf-8")
+    handoff = build_handoff(run, result, next_checks) if status == "escalated" else None
     store().update_run(run.id, status=status, finished_at=now_iso(), report_md=report,
                        final_patch=result.patch if status == "verified" else "", criteria_json=stable_json(crit),
-                       reason=result.reason)
+                       reason=result.reason, handoff_json=stable_json(handoff) if handoff else None)
     store().event(run.id, run.root_id, "run_finished", f"run {status.upper()}: {result.reason}",
                   {"status": status, "usage": usage_summary(run.id)})

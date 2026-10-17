@@ -1,4 +1,5 @@
 """Usage accounting, execution tree views, and the final report / escalation bundle."""
+import json
 import re
 
 from .budget import NodeBudget, NodeCtx
@@ -152,6 +153,45 @@ def write_report(run, result: NodeResult, crit: list[dict], next_checks: list[st
         md += ["", "## What a human should check next"] + [f"{i}. {c}" for i, c in enumerate(next_checks, 1)]
     md += ["", "## Citations", citations_md(run.id)]
     return redact("\n".join(md) + "\n")
+
+
+# Plain-language explanation per kind of escalation, keyed by how the root node's reason starts.
+HANDOFF_KINDS = [
+    ("budget or depth exceeded", "budget",
+     "The run reached its time or model-call budget before it could verify a fix."),
+    ("No code bug to fix", "no_code_bug",
+     "Your code passes all of its tests now, so the failure did not happen again here. Nothing was patched: the "
+     "problem most likely came from outside your code, for example an outage on the provider's side."),
+    ("insufficient evidence", "insufficient_evidence",
+     "The agents could not find enough evidence to make a safe, verified fix, for example because the needed "
+     "behavior is not documented anywhere they could check."),
+    ("fix attempts exhausted", "fixes_failed",
+     "Every fix the agents proposed failed your tests, so none was kept."),
+    ("parent goal not met", "fixes_failed",
+     "Parts of the problem were fixed, but the combined result still fails your tests, so nothing was kept."),
+]
+
+
+def build_handoff(run, result: NodeResult, checks: list[str]) -> dict:
+    """What a human needs to pick this up, shown on the page: why it was handed over, the likely cause, the key
+    evidence (logs, request IDs, sources) and what to check next."""
+    reason = result.reason or ""
+    kind, summary = "unresolved", "The run could not establish a verified fix, so it stopped instead of guessing."
+    for marker, k, text in HANDOFF_KINDS:
+        if marker in reason:
+            kind, summary = k, text
+            break
+    if result.status == "failed":
+        kind, summary = "error", "The run stopped with an error before it could verify a fix."
+    node = store().get_node(run.root_id) or {}
+    try:
+        evidence = json.loads(node.get("evidence_json") or "{}") or {}
+    except json.JSONDecodeError:
+        evidence = {}
+    items = [{"kind": str(e.get("kind", "")), "ref": trunc(e.get("ref", ""), 200), "detail": trunc(e.get("detail", ""), 300)}
+             for e in (evidence.get("evidence") or [])[:6] if isinstance(e, dict)]
+    return {"kind": kind, "summary": summary, "reason": reason,
+            "cause": trunc(evidence.get("root_cause", ""), 600), "evidence": items, "checks": checks[:7]}
 
 
 def escalation_checks(run, result: NodeResult) -> list[str]:
