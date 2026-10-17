@@ -1,0 +1,90 @@
+// TicketZero: how the recursive resolver decides. Render with:
+//   dot -Tpng -Gdpi=200 docs/flowchart.dot -o docs/flowchart.png
+digraph TicketZero {
+  graph [rankdir=TB, newrank=true, bgcolor="#faf9f6", fontname="Helvetica", pad="0.4", nodesep="0.35", ranksep="0.42",
+         label=<<B>TicketZero · how the recursive resolver decides</B>>, labelloc=t, fontsize=22, fontcolor="#202a24"];
+  node  [fontname="Helvetica", fontsize=12, fontcolor="#202a24", style="rounded,filled", fillcolor="white",
+         color="#c9cec6", penwidth=1.2, shape=box, margin="0.18,0.09"];
+  edge  [fontname="Helvetica", fontsize=10.5, fontcolor="#6b706f", color="#9aa39b", penwidth=1.2, arrowsize=0.7];
+
+  // ---------------------------------------------------------------- run setup (depth 0 only)
+  ticket  [label=<<B>Ticket + project folder</B><BR/><FONT POINT-SIZE="10.5" COLOR="#6b706f">your words, logs, a folder with pytest tests</FONT>>,
+           fillcolor="#edf1e9", color="#294f3c"];
+  freeze  [label=<<B>Freeze acceptance tests</B><BR/><FONT POINT-SIZE="10.5" COLOR="#6b706f">hash + read-only · no agent can edit them</FONT>>];
+  define  [label=<<B>Triage + define success</B><BR/><FONT POINT-SIZE="10.5" COLOR="#6b706f">Nano extracts symptoms · Super maps goals to tests</FONT>>];
+  repro   [label="Do the tests fail on\nthe unchanged code?", shape=diamond, style=filled, fillcolor="#fbefe7", color="#ae522e", margin="0.04,0.04"];
+  outside [label=<<B>Investigate outside the code</B><BR/><FONT POINT-SIZE="10.5" COLOR="#6b706f">logs · request IDs · live /v1/models · docs</FONT>>];
+
+  // ---------------------------------------------------------------- one call of resolve()
+  subgraph cluster_resolve {
+    label=<<B>resolve(task, depth)</B>  <FONT POINT-SIZE="11" COLOR="#6b706f">· one call per box in the live flowchart · ↻ = the same function, one level deeper</FONT>>;
+    labeljust=l; fontsize=15; fontcolor="#294f3c"; style="rounded,dashed"; color="#294f3c"; penwidth=1.4; margin=18;
+
+    gate   [label="Budget and depth left?", shape=diamond, style=filled, fillcolor="#fbefe7", color="#ae522e", margin="0.04,0.04"];
+    plan   [label=<<B>Planner · Super</B><BR/><FONT POINT-SIZE="10.5" COLOR="#6b706f">independent root causes?</FONT>>];
+    split  [label="Split or solve?", shape=diamond, style=filled, fillcolor="#fbefe7", color="#ae522e", margin="0.04,0.04"];
+
+    // split branch
+    spawn  [label=<<B>Spawn sub-tasks in parallel</B><BR/><FONT POINT-SIZE="10.5" COLOR="#6b706f">each in its own git worktree</FONT>>];
+    join   [label=<<B>Join: wait for every child</B><BR/><FONT POINT-SIZE="10.5" COLOR="#6b706f">merge verified patches · re-run full suite</FONT>>];
+    replan [label="Replans left?", shape=diamond, style=filled, fillcolor="#fbefe7", color="#ae522e", margin="0.04,0.04"];
+
+    // solve branch
+    invest [label=<<B>Investigate · Lightning</B><BR/><FONT POINT-SIZE="10.5" COLOR="#6b706f">code · logs · tests · /v1/models · You.com</FONT>>];
+    enough [label="Enough evidence?\n(Nano gate)", shape=diamond, style=filled, fillcolor="#fbefe7", color="#ae522e", margin="0.04,0.04"];
+    patch  [label=<<B>Write a patch · Lightning</B><BR/><FONT POINT-SIZE="10.5" COLOR="#6b706f">rejected if it touches or weakens tests</FONT>>];
+
+    verify [label="Frozen tests pass\nand critic (Super)\ndoesn't veto?", shape=diamond, style=filled, fillcolor="#fbefe7", color="#ae522e", margin="0.04,0.04"];
+
+    // the three recursive calls
+    rec_child    [label="↻  resolve(sub-task, depth + 1)", shape=box, style="rounded,filled,dashed", fillcolor="#f3f4ee", color="#294f3c", fontcolor="#294f3c"];
+    rec_research [label="↻  resolve(narrower question, depth + 1)", shape=box, style="rounded,filled,dashed", fillcolor="#f3f4ee", color="#294f3c", fontcolor="#294f3c"];
+    rec_failure  [label="↻  resolve(fix this failure, depth + 1)", shape=box, style="rounded,filled,dashed", fillcolor="#f3f4ee", color="#294f3c", fontcolor="#294f3c"];
+
+    ok     [label=<<B>Verified</B><BR/><FONT POINT-SIZE="10.5">return the patch to the parent</FONT>>, fillcolor="#294f3c", color="#294f3c", fontcolor="white"];
+    up     [label=<<B>Escalate to the parent</B><BR/><FONT POINT-SIZE="10.5" COLOR="#6b706f">with every negative finding</FONT>>, fillcolor="#fbefe7", color="#ae522e"];
+
+    {rank=same; spawn; invest}
+    {rank=same; ok; up}
+  }
+
+  // ---------------------------------------------------------------- outcomes at depth 0
+  verified  [label=<<B>VERIFIED</B><BR/><FONT POINT-SIZE="10.5">patch + test proof · written back only if you allow edits</FONT>>,
+             fillcolor="#294f3c", color="#294f3c", fontcolor="white"];
+  escalated [label=<<B>HANDED TO A HUMAN</B><BR/><FONT POINT-SIZE="10.5" COLOR="#6b706f">why · likely cause · evidence · what to check next</FONT>>,
+             fillcolor="#fbefe7", color="#ae522e"];
+
+  ticket -> freeze -> define -> repro;
+  repro  -> gate    [label=" yes: a real bug ", fontcolor="#294f3c"];
+  repro  -> outside [label=" no: nothing to patch ", fontcolor="#ae522e"];
+  outside -> escalated;
+
+  gate -> plan  [label=" yes "];
+  gate -> up    [label=" no ", fontcolor="#ae522e"];
+  plan -> split;
+  split -> spawn  [label=" split "];
+  split -> invest [label=" solve "];
+
+  spawn -> rec_child [label=" for each sub-task "];
+  rec_child -> join  [label=" all return "];
+  join -> verify;
+
+  invest -> enough;
+  enough -> patch        [label=" yes "];
+  enough -> rec_research [label=" no "];
+  rec_research -> invest [label=" findings ", style=dashed];
+  patch -> verify;
+
+  verify -> ok          [label=" yes ", fontcolor="#294f3c"];
+  verify -> rec_failure [label=" no · leaf ", fontcolor="#ae522e"];
+  verify -> replan      [label=" no · parent ", fontcolor="#ae522e"];
+  rec_failure -> ok     [label=" child fixed it ", style=dashed];
+  rec_failure -> up     [label=" attempts used up ", style=dashed];
+  replan -> plan        [label=" yes: with failure notes ", style=dashed, constraint=false];
+  replan -> up          [label=" no "];
+
+  ok -> verified [label=" at depth 0 ", fontcolor="#294f3c"];
+  up -> escalated [label=" at depth 0 ", fontcolor="#ae522e"];
+
+  {rank=same; verified; escalated}
+}
