@@ -36,6 +36,33 @@ def collect_tests(run, wt: Path, marker: Optional[str] = None) -> list[str]:
     return [l.strip() for l in p.stdout.splitlines() if "::" in l and not l.startswith(" ")]
 
 
+_TEST_DEF_RE = re.compile(r"^([ \t]*)(?:async[ \t]+)?def[ \t]+(test_\w+)[ \t]*\(|^class[ \t]+(Test\w+)", re.M)
+
+
+def static_test_ids(wt: Path, frozen_files: list[str]) -> list[str]:
+    """Test IDs read from the frozen test files without importing them. Used when pytest cannot collect (for
+    example the app under test raises at import), so criteria and per-test results still name every test."""
+    ids: list[str] = []
+    for rel in frozen_files:
+        name = Path(rel).name
+        if not rel.endswith(".py") or name == "conftest.py" or not (name.startswith("test_") or name.endswith("_test.py")):
+            continue
+        try:
+            text = (wt / rel).read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        cls = None
+        for indent, func, klass in _TEST_DEF_RE.findall(text):
+            if klass:
+                cls = klass
+            elif not indent:
+                cls = None
+                ids.append(f"{rel}::{func}")
+            elif cls:
+                ids.append(f"{rel}::{cls}::{func}")
+    return ids
+
+
 def run_pytest(run, wt: Path, test_ids: Optional[list[str]] = None) -> dict:
     """Run the frozen suite (or known test IDs) and return per-test outcomes plus the output tail.
 

@@ -10,7 +10,7 @@ from openai import OpenAI
 
 BASE_URL = "https://api.inference.crusoecloud.com/v1"
 API_KEY_ENV = "CRUSOE_API_KEY"
-MODEL = "test-model"
+MODEL = "google/gemma-4-31b-it"
 MAX_TOKENS = 1024
 CARD_MAX_TOKENS = 1024
 
@@ -69,7 +69,7 @@ def ask(question):
             }
         )
         for tc in msg.tool_calls:
-            args = json.loads(tc.function.arguments)
+            args = tc.function.arguments
             result = get_weather(**args)
             messages.append(
                 {"role": "tool", "tool_call_id": tc.id, "content": json.dumps(result)}

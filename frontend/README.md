@@ -24,7 +24,7 @@ npm run build
 npm test
 ```
 
-The build writes `index.html` and `dist/index.html`. Either is a self-contained app; distribute `dist/index.html` as the standalone version.
+The build writes `index.html`, a self-contained app (styles, scripts, fonts and icons embedded).
 
 ## Source files
 

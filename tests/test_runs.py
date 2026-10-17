@@ -90,7 +90,8 @@ def test_health_and_scenarios(client, monkeypatch):
     assert health["models"]["verifier"] != health["models"]["fixer"]
     names = [s["name"] for s in client.get("/scenarios").json()]
     assert names[:3] == ["multi_bug_chat_service", "tool_loop_ordering", "voice_audio_unsupported"]
-    assert [n[:3] for n in names[3:]] == [f"T{i:02d}" for i in range(1, 11)]   # benchmark tickets T01-T10
+    tickets = [n[:3] for n in names[3:]]                                       # benchmark tickets, in order
+    assert tickets == sorted(tickets) and {f"T{i:02d}" for i in range(1, 11)} <= set(tickets)
 
 
 def test_split_children_are_told_about_sibling_tasks(client, monkeypatch):

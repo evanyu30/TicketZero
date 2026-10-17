@@ -26,13 +26,18 @@ async function loadHealth(){
  if(health&&!health.ok&&health.error)formError('The backend can’t reach its models: '+health.error);
 }
 async function loadScenarios(){
- try{const list=await api.scenarios();scenarios=Object.fromEntries(list.map(s=>[s.name,s]));}catch{return;}
+ let list;try{list=await api.scenarios();scenarios=Object.fromEntries(list.map(s=>[s.name,s]));}catch{return;}
  root.querySelectorAll('[data-example]').forEach(b=>{const s=scenarios[EXAMPLES[b.dataset.example]];if(!s)return;b.querySelector('strong').textContent=s.label;b.querySelector('small').textContent=s.hint;});
+ // Benchmark tickets (T01..T10) in the collapsible list, styled like the featured examples.
+ const tickets=list.filter(s=>/^T\d\d_/.test(s.name));
+ el('more-samples').hidden=!tickets.length;el('more-samples-count').textContent=tickets.length+' tickets';
+ el('sample-list').innerHTML=tickets.map(s=>'<button type="button" data-scenario="'+esc(s.name)+'"><span class="sample-icon">'+icon(s.expected_outcome==='ESCALATED'?'clock':'code')+'</span><span><strong><span class="ticket-id">'+esc(s.name.slice(0,3))+'</span>'+esc(s.label)+'</strong><small>'+esc(s.hint)+'</small></span>'+icon('arrow-up-right')+'</button>').join('');
 }
-function fillSample(key){
- const s=scenarios[EXAMPLES[key]];if(!s){formError('Examples need the backend. Start it, then reload this page.');return;}
+function fillSample(key){fillScenario(EXAMPLES[key]);}
+function fillScenario(name){
+ const s=scenarios[name];if(!s){formError('Examples need the backend. Start it, then reload this page.');return;}
  el('issue').value=s.ticket.description;el('context').value=s.ticket.logs||'';el('expected').value=s.ticket.expected_behavior||'';
- sample={name:s.name,text:s.ticket.description.trim()};formError('');el('form-hint').textContent='Example loaded. It runs on its own demo folder.';el('issue').focus();
+ sample={name:s.name,text:s.ticket.description.trim()};formError('');el('form-hint').textContent='Example loaded. It runs on its own demo folder.';el('issue').scrollIntoView({block:'center'});el('issue').focus();
 }
 
 // ---------------------------------------------------------------- starting and following a run
@@ -210,6 +215,7 @@ el('issue').addEventListener('input',()=>{el('form-hint').textContent='Leave out
 root.addEventListener('click',event=>{
  const b=event.target.closest('button');if(!b)return;
  if(b.dataset.example){fillSample(b.dataset.example);return;}
+ if(b.dataset.scenario){fillScenario(b.dataset.scenario);return;}
  if(b.dataset.node){openNode(b.dataset.node,b);return;}
  if(b.dataset.event){openEvent(+b.dataset.event,b);return;}
  if(b.dataset.proof==='goal'){openGoal(b);return;}

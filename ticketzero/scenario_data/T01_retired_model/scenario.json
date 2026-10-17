@@ -10,7 +10,7 @@
     "split": "dev",
     "category": "Model lifecycle",
     "app_model": "google/gemma-4-31b-it",
-    "source": "ticketzero/tickets/T01_retired_model"
+    "source": "manual_testing/tickets/T01_retired_model"
   },
   "ticket": {
     "title": "Concierge app completely down",

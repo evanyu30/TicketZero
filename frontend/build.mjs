@@ -1,4 +1,4 @@
-import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import {readFile,writeFile} from 'node:fs/promises';
 const read=p=>readFile(new URL(p,import.meta.url),'utf8');
 const names=['circle-fill','circle','circle-dot','circle-notch','check-circle-fill','warning-circle-fill','warning-circle','caret-right','caret-down','arrow-right','arrow-up-right','code','clock','file-text','file-code','info','plugs','plus','x','download-simple','folder-open'];
 const icons={};for(const n of names){const fill=n.endsWith('-fill');let svg=await read('node_modules/@phosphor-icons/core/assets/'+(fill?'fill':'regular')+'/'+(n==='circle-dot'?'radio-button':n)+'.svg');icons[n]=svg.replace('<svg ','<svg class="icon" aria-hidden="true" focusable="false" ');}
@@ -8,7 +8,5 @@ const readFolderUI=await read('ticketzero-folder-ui.js');
 let html=(await read('ticketzero-shell.html')).replace('/* FONT_CSS */',()=>fonts).replace('/* DESIGN_CSS */',()=>css);
 html=html.replace(/\{\{icon:([^}]+)\}\}/g,(_,name)=>icons[name]).replace('/* ICON_DATA */',()=>('const TICKETZERO_ICONS='+JSON.stringify(icons)+';')).replace('/* API_SCRIPT */',()=>apiClient).replace('/* MODEL_SCRIPT */',()=>model).replace('/* UI_SCRIPT */',()=>ui);
 html=html.replace('/* FOLDER_UI_SCRIPT */',()=>readFolderUI);
-await mkdir(new URL('dist/',import.meta.url),{recursive:true});
 await writeFile(new URL('index.html',import.meta.url),html);
-await writeFile(new URL('dist/index.html',import.meta.url),html);
 console.log('Built TicketZero: '+Math.round(html.length/1024)+' KB');

@@ -37,6 +37,13 @@
 .flow-empty{padding:30px 0;color:var(--muted);font-size:14px}
 .outcome-flow{margin-top:26px}
 .outcome-flow .work-heading>svg{color:var(--green)}
+/* Benchmark ticket list (same row style as .optional, same buttons as .samples) */
+.more-samples{margin-top:10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.more-samples summary{display:flex;align-items:center;gap:8px;font-size:14px;padding:14px 0}
+.more-samples summary>span{margin-left:auto;color:var(--muted);font-size:12px}
+.sample-list{margin-top:0;padding-bottom:10px}
+.sample-list button strong .ticket-id{color:var(--muted);font-weight:500;margin-right:6px}
+@media(max-width:760px){.sample-list{grid-template-columns:1fr}}
 </style></head>
 <body><div id="ticketzero" data-view="intake">
 <header class="topbar"><button class="wordmark" data-action="new" aria-label="TicketZero home">TicketZero</button><div class="header-actions"><span class="demo-label"><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M232,128A104,104,0,1,1,128,24,104.13,104.13,0,0,1,232,128Z"/></svg> Connecting…</span><button class="outline" id="new-issue" data-action="new"><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"/></svg> New issue</button></div></header>
@@ -49,6 +56,7 @@
 <details class="optional"><summary><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"/></svg> Add logs or more context <span>Optional</span></summary><div class="context-fields"><label for="context">Logs, request, or reproduction</label><textarea id="context" rows="3" maxlength="16000" placeholder="A sanitized request or relevant logs"></textarea><label for="expected">What would a successful fix look like?</label><input id="expected" maxlength="500" placeholder="For example: the agent calls lookup_order and completes the request."></div></details>
 <p id="form-error" role="alert" hidden></p><div class="compose-footer"><span class="muted" id="form-hint">Leave out API keys and credentials.</span><button type="submit" class="primary">Start investigating <svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></button></div></form>
 <div class="samples"><p>Just exploring? Try an example.</p><button data-example="recovery"><span class="sample-icon"><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M69.12,94.15,28.5,128l40.62,33.85a8,8,0,1,1-10.24,12.29l-48-40a8,8,0,0,1,0-12.29l48-40a8,8,0,0,1,10.24,12.3Zm176,27.7-48-40a8,8,0,1,0-10.24,12.3L227.5,128l-40.62,33.85a8,8,0,1,0,10.24,12.29l48-40a8,8,0,0,0,0-12.29ZM162.73,32.48a8,8,0,0,0-10.25,4.79l-64,176a8,8,0,0,0,4.79,10.26A8.14,8.14,0,0,0,96,224a8,8,0,0,0,7.52-5.27l64-176A8,8,0,0,0,162.73,32.48Z"/></svg></span><span><strong>Tool calls disappeared</strong><small>After switching to a different model</small></span><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"/></svg></button><button data-example="escalation"><span class="sample-icon"><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"/></svg></span><span><strong>Requests keep timing out</strong><small>See when an investigation needs a handoff</small></span><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"/></svg></button></div>
+<details class="more-samples" id="more-samples" hidden><summary><svg class="icon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"/></svg> Benchmark tickets <span id="more-samples-count"></span></summary><div class="samples sample-list" id="sample-list"></div></details>
 <p class="demo-explainer">Examples run live on built-in project folders. Your own issue needs a project folder with tests.</p>
 </section>
 <section id="investigation" hidden class="investigation">
@@ -145,6 +153,9 @@ function milestone(e,names,rootId){
    if(/^triage:/.test(m))return {title:'Issue triaged',text:m.replace(/^triage:\s*/,'')};
    if(/^froze /.test(m))return {title:'Tests frozen',text:'The acceptance tests are locked so no agent can edit them.'};
    if(/acceptance criteria/.test(m))return {title:'Success defined',text:m.replace(/^defined/,'Defined')};
+   if(/^baseline: all/.test(m))return {title:'Failure didn’t reproduce',text:'The tests already pass on your code, so nothing will be patched.'};
+   if(/^baseline:/.test(m))return {title:'Failure reproduced',text:m.replace(/^baseline:\s*/,'')};
+   if(/^no code fix:/.test(m))return {title:'Looking outside the code',text:'Collecting evidence for a human handoff.'};
    if(/^split:/.test(m))return {title:'Split into sub-tasks',text:node};
    if(/^replan/.test(m))return {title:'Replanning',text:node,failed:true};
    return null;
@@ -282,13 +293,18 @@ async function loadHealth(){
  if(health&&!health.ok&&health.error)formError('The backend can’t reach its models: '+health.error);
 }
 async function loadScenarios(){
- try{const list=await api.scenarios();scenarios=Object.fromEntries(list.map(s=>[s.name,s]));}catch{return;}
+ let list;try{list=await api.scenarios();scenarios=Object.fromEntries(list.map(s=>[s.name,s]));}catch{return;}
  root.querySelectorAll('[data-example]').forEach(b=>{const s=scenarios[EXAMPLES[b.dataset.example]];if(!s)return;b.querySelector('strong').textContent=s.label;b.querySelector('small').textContent=s.hint;});
+ // Benchmark tickets (T01..T10) in the collapsible list, styled like the featured examples.
+ const tickets=list.filter(s=>/^T\d\d_/.test(s.name));
+ el('more-samples').hidden=!tickets.length;el('more-samples-count').textContent=tickets.length+' tickets';
+ el('sample-list').innerHTML=tickets.map(s=>'<button type="button" data-scenario="'+esc(s.name)+'"><span class="sample-icon">'+icon(s.expected_outcome==='ESCALATED'?'clock':'code')+'</span><span><strong><span class="ticket-id">'+esc(s.name.slice(0,3))+'</span>'+esc(s.label)+'</strong><small>'+esc(s.hint)+'</small></span>'+icon('arrow-up-right')+'</button>').join('');
 }
-function fillSample(key){
- const s=scenarios[EXAMPLES[key]];if(!s){formError('Examples need the backend. Start it, then reload this page.');return;}
+function fillSample(key){fillScenario(EXAMPLES[key]);}
+function fillScenario(name){
+ const s=scenarios[name];if(!s){formError('Examples need the backend. Start it, then reload this page.');return;}
  el('issue').value=s.ticket.description;el('context').value=s.ticket.logs||'';el('expected').value=s.ticket.expected_behavior||'';
- sample={name:s.name,text:s.ticket.description.trim()};formError('');el('form-hint').textContent='Example loaded. It runs on its own demo folder.';el('issue').focus();
+ sample={name:s.name,text:s.ticket.description.trim()};formError('');el('form-hint').textContent='Example loaded. It runs on its own demo folder.';el('issue').scrollIntoView({block:'center'});el('issue').focus();
 }
 
 // ---------------------------------------------------------------- starting and following a run
@@ -466,6 +482,7 @@ el('issue').addEventListener('input',()=>{el('form-hint').textContent='Leave out
 root.addEventListener('click',event=>{
  const b=event.target.closest('button');if(!b)return;
  if(b.dataset.example){fillSample(b.dataset.example);return;}
+ if(b.dataset.scenario){fillScenario(b.dataset.scenario);return;}
  if(b.dataset.node){openNode(b.dataset.node,b);return;}
  if(b.dataset.event){openEvent(+b.dataset.event,b);return;}
  if(b.dataset.proof==='goal'){openGoal(b);return;}

@@ -10,7 +10,7 @@
     "split": "dev",
     "category": "Configuration",
     "app_model": "google/gemma-4-31b-it",
-    "source": "ticketzero/tickets/T02_wrong_base_url"
+    "source": "manual_testing/tickets/T02_wrong_base_url"
   },
   "ticket": {
     "title": "Can't connect after moving to Crusoe",

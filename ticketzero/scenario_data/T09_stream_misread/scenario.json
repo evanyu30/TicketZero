@@ -10,7 +10,7 @@
     "split": "held_out",
     "category": "Streaming",
     "app_model": "google/gemma-4-31b-it",
-    "source": "ticketzero/tickets/T09_stream_misread"
+    "source": "manual_testing/tickets/T09_stream_misread"
   },
   "ticket": {
     "title": "Crash after enabling streaming",

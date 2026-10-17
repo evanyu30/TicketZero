@@ -10,7 +10,7 @@
     "split": "dev",
     "category": "Migration",
     "app_model": "google/gemma-4-31b-it",
-    "source": "ticketzero/tickets/T08_wrong_api_key_env"
+    "source": "manual_testing/tickets/T08_wrong_api_key_env"
   },
   "ticket": {
     "title": "Auth failing after migration",

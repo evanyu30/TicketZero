@@ -43,6 +43,9 @@ function milestone(e,names,rootId){
    if(/^triage:/.test(m))return {title:'Issue triaged',text:m.replace(/^triage:\s*/,'')};
    if(/^froze /.test(m))return {title:'Tests frozen',text:'The acceptance tests are locked so no agent can edit them.'};
    if(/acceptance criteria/.test(m))return {title:'Success defined',text:m.replace(/^defined/,'Defined')};
+   if(/^baseline: all/.test(m))return {title:'Failure didn’t reproduce',text:'The tests already pass on your code, so nothing will be patched.'};
+   if(/^baseline:/.test(m))return {title:'Failure reproduced',text:m.replace(/^baseline:\s*/,'')};
+   if(/^no code fix:/.test(m))return {title:'Looking outside the code',text:'Collecting evidence for a human handoff.'};
    if(/^split:/.test(m))return {title:'Split into sub-tasks',text:node};
    if(/^replan/.test(m))return {title:'Replanning',text:node,failed:true};
    return null;

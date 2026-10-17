@@ -32,6 +32,15 @@ or click a demo, which uses `ticketzero/scenario_data/<name>/repo`.
   started (`POST /runs/{id}/apply`).
 - If the folder has `.venv/bin/python` (or `venv/`, `env/`) with pytest installed, tests run with it, so the
   project's own dependencies are available.
+- Before any fix, the frozen tests run once on the unmodified code. If they already pass, the reported failure does
+  not reproduce (for example a past platform outage): nothing is patched, and the run investigates and escalates.
+
+Demos: three hand-made scenarios plus the TicketZero benchmark tickets (the "Benchmark tickets" list on the start
+page), each a folder under `ticketzero/scenario_data/`.
+
+Manual testing: `manual_testing/` holds the original ticket catalog. Pick one folder under `manual_testing/tickets/`
+with "Your folder" and describe the problem yourself; `build_catalog.py`, `score.py` and the answer key live there too
+(see `manual_testing/TICKETS_README.md`).
 
 Tests, no keys or network needed:
 - Backend: `.venv/bin/python -m pytest` (scripted fake Nemotron drives full runs)

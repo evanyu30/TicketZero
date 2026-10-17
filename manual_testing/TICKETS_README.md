@@ -1,3 +1,9 @@
+> **Manual testing with the TicketZero app.** Start the backend and frontend, choose **Your folder**, pick ONE
+> ticket folder (for example `manual_testing/tickets/T03_tool_call_ignored`, never `manual_testing/` itself), and
+> describe the problem in your own words (`ticket.md` is the customer's version). The same tickets are also built in
+> as demos under `ticketzero/scenario_data/` ("Benchmark tickets" on the start page). Run the commands below from
+> this folder.
+
 # TicketZero benchmark: 12 broken customer tickets
 
 All synthetic test data, written at the hackathon.

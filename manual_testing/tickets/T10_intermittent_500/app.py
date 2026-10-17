@@ -10,7 +10,7 @@ from openai import OpenAI
 
 BASE_URL = "https://api.inference.crusoecloud.com/v1"
 API_KEY_ENV = "CRUSOE_API_KEY"
-MODEL = "test-model"
+MODEL = "google/gemma-4-31b-it"
 MAX_TOKENS = 1024
 CARD_MAX_TOKENS = 1024
 
@@ -59,7 +59,8 @@ def ask(question):
             max_tokens=MAX_TOKENS,
         )
         msg = response.choices[0].message
-        return msg.content or ""  # the model always answers directly
+        if not msg.tool_calls:
+            return msg.content or ""
         messages.append(
             {
                 "role": "assistant",

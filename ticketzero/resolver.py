@@ -20,7 +20,7 @@ from .schemas import PlanOut
 from .store import store
 from .tasks import NodeResult, TaskSpec
 from .util import new_id, now_iso, redact, stable_json, trunc
-from .verify import collect_tests, independent_verify
+from .verify import collect_tests, independent_verify, run_pytest, static_test_ids
 
 
 class Resolver:
@@ -131,6 +131,8 @@ class Resolver:
         self.set_status(nc.node_id, "planning")
         if nc.depth == 0 and self.run.frozen_hash is None:
             self._define_success(nc)
+            if self._baseline_passes(nc):
+                return self._escalate_without_code_bug(nc, task)
         context = store().context_for(self.run.id, nc.node_id)   # F5: memory in
         task, plan = self._choose_plan(nc, task, context, research_only)
         if plan.kind == "split":
@@ -143,6 +145,8 @@ class Resolver:
         run.sandbox.freeze(nc.wt)
         run.test_ids = collect_tests(run, nc.wt)
         run.live_test_ids = collect_tests(run, nc.wt, "live")
+        if not run.test_ids:   # pytest could not collect (e.g. the app raises at import): read the test names
+            run.test_ids = static_test_ids(nc.wt, run.frozen_files)
         store().update_run(run.id, frozen_hash=run.frozen_hash)
         store().event(run.id, nc.node_id, "plan", f"froze {len(run.frozen_files)} test/config files",
                       {"frozen_files": run.frozen_files, "frozen_hash": run.frozen_hash, "test_ids": run.test_ids,
@@ -150,6 +154,39 @@ class Resolver:
         run.triage = agents.nano_triage(nc)
         run.criteria = agents.planner_define_success(nc)
         store().update_run(run.id, criteria_json=stable_json(run.criteria))
+
+    def _baseline_passes(self, nc: NodeCtx) -> bool:
+        """Run the frozen suite once on the unmodified code. If it already passes, the reported failure does not
+        reproduce in the customer's code, and patching it would be a false success."""
+        run = self.run
+        base = run_pytest(run, nc.wt)
+        failing = [t for t, v in base["results"].items() if v != "passed"]
+        message = (f"baseline: all {base['counts']['passed']} frozen tests already pass on the unmodified code"
+                   if base["passed"] else f"baseline: the failure reproduces ({base['summary']})")
+        store().event(run.id, nc.node_id, "plan", message, {"passed": base["passed"], "failing": failing,
+                                                            "summary": base["summary"]})
+        return base["passed"]
+
+    def _escalate_without_code_bug(self, nc: NodeCtx, task: TaskSpec) -> NodeResult:
+        """No code bug to fix: investigate the cause outside the code (e.g. a platform incident), then escalate with
+        that evidence instead of patching."""
+        run = self.run
+        plan = PlanOut(kind="atomic", rationale="All frozen acceptance tests already pass on the unmodified code, so "
+                       "there is no code bug to patch. Collecting evidence for a human handoff.",
+                       approach="research the cause outside the customer's code")
+        store().update_node(nc.node_id, kind="research", plan_json=stable_json(plan.model_dump()))
+        store().event(run.id, nc.node_id, "plan", f"no code fix: {plan.rationale}", plan.model_dump())
+        self.set_status(nc.node_id, "investigating", "failure does not reproduce")
+        research = TaskSpec(task.title, task.goal, task.hypothesis, task.test_ids, note=(
+            "All frozen acceptance tests already pass on the unmodified code, so the reported failure does not "
+            "reproduce. Do not plan a code change. Determine whether the cause is outside the customer's code (for "
+            "example a platform incident) and collect what a human needs: time window, status codes, request IDs."))
+        evidence = agents.investigate(nc, research, store().context_for(run.id, nc.node_id), [], True, plan)
+        cause = trunc(evidence.get("root_cause", ""), 400)
+        return self.close(nc.node_id, "escalated",
+                          f"No code bug to fix: all frozen acceptance tests pass on the unmodified code, so nothing "
+                          f"was patched." + (f" Likely cause: {cause}" if cause else ""), evidence=evidence,
+                          title=task.title)
 
     def _choose_plan(self, nc: NodeCtx, task: TaskSpec, context: str, research_only: bool) -> tuple[TaskSpec, PlanOut]:
         """Flowchart: "decompose". Research nodes and max-depth nodes are atomic without an LLM call."""

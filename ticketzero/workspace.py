@@ -18,7 +18,7 @@ from .patches import is_test_or_config, parse_diff, safe_rel
 # Never copied into the sandbox, so never readable by the agents or sent to a model.
 SKIP_DIRS = {".git", ".hg", ".svn", "node_modules", ".venv", "venv", "env", "__pycache__", ".pytest_cache",
              ".mypy_cache", ".ruff_cache", ".tox", ".nox", ".idea", ".vscode", "dist", "build", ".next",
-             "ticketzero_data", ".ipynb_checkpoints"}
+             "ticketzero_data", ".ipynb_checkpoints", "_answer_key"}
 SECRET_FILE_RE = re.compile(r"^\.env(\..+)?$|\.(pem|key|p12|pfx|keystore|jks)$|^id_(rsa|dsa|ecdsa|ed25519)(\.pub)?$"
                             r"|^\.netrc$|^\.pypirc$|credentials(\.json)?$", re.I)
 SECRET_ALLOW = {".env.example", ".env.sample", ".env.template"}

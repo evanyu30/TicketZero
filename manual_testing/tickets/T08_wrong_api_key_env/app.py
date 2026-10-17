@@ -9,8 +9,8 @@ import os
 from openai import OpenAI
 
 BASE_URL = "https://api.inference.crusoecloud.com/v1"
-API_KEY_ENV = "CRUSOE_API_KEY"
-MODEL = "test-model"
+API_KEY_ENV = "OPENAI_API_KEY"
+MODEL = "google/gemma-4-31b-it"
 MAX_TOKENS = 1024
 CARD_MAX_TOKENS = 1024
 
@@ -57,7 +57,6 @@ def ask(question):
             messages=messages,
             tools=TOOLS,
             max_tokens=MAX_TOKENS,
-            stream=True,
         )
         msg = response.choices[0].message
         if not msg.tool_calls:

@@ -10,7 +10,7 @@
     "split": "dev",
     "category": "Structured output",
     "app_model": "google/gemma-4-31b-it",
-    "source": "ticketzero/tickets/T05_json_truncated"
+    "source": "manual_testing/tickets/T05_json_truncated"
   },
   "ticket": {
     "title": "weather_card JSON broken",

@@ -109,3 +109,12 @@ def test_cors_allows_only_local_origins(client):
     assert ok.headers.get("access-control-allow-origin") == "http://127.0.0.1:5173"
     assert client.get("/health", headers={"Origin": "null"}).headers.get("access-control-allow-origin") == "null"
     assert "access-control-allow-origin" not in client.get("/health", headers={"Origin": "https://evil.example"}).headers
+
+
+def test_answer_key_is_never_visible_to_agents(tmp_path):
+    (tmp_path / "tickets/T01").mkdir(parents=True)
+    (tmp_path / "tickets/T01/app.py").write_text("x = 1\n")
+    (tmp_path / "tickets/T01/test_app.py").write_text("def test_x(): pass\n")
+    (tmp_path / "_answer_key").mkdir()
+    (tmp_path / "_answer_key/answers.json").write_text('{"root_cause": "secret"}')
+    assert not any("_answer_key" in p for p in scan_folder(str(tmp_path)).files)
