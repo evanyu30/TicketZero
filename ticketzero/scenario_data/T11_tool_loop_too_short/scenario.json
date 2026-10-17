@@ -10,7 +10,7 @@
     "split": "held_out",
     "category": "Function calling",
     "app_model": "google/gemma-4-31b-it",
-    "source": "manual_testing/tickets/T11_tool_loop_too_short"
+    "source": "demo_examples/tickets/T11_tool_loop_too_short"
   },
   "ticket": {
     "title": "Weather answers are empty, but the tool runs",

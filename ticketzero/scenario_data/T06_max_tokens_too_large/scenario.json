@@ -10,7 +10,7 @@
     "split": "held_out",
     "category": "Request parameters",
     "app_model": "google/gemma-4-31b-it",
-    "source": "manual_testing/tickets/T06_max_tokens_too_large"
+    "source": "demo_examples/tickets/T06_max_tokens_too_large"
   },
   "ticket": {
     "title": "400 Bad Request on every ask()",

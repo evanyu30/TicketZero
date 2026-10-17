@@ -10,7 +10,7 @@
     "split": "dev",
     "category": "Platform incident (escalate)",
     "app_model": "google/gemma-4-31b-it",
-    "source": "manual_testing/tickets/T07_platform_outage_503"
+    "source": "demo_examples/tickets/T07_platform_outage_503"
   },
   "ticket": {
     "title": "Everything failed last night, is it our code?",

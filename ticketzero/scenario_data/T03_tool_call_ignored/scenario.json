@@ -10,7 +10,7 @@
     "split": "dev",
     "category": "Function calling",
     "app_model": "google/gemma-4-31b-it",
-    "source": "manual_testing/tickets/T03_tool_call_ignored"
+    "source": "demo_examples/tickets/T03_tool_call_ignored"
   },
   "ticket": {
     "title": "Blank answers since switching models",

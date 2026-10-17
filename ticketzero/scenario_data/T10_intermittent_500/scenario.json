@@ -10,7 +10,7 @@
     "split": "held_out",
     "category": "Platform incident (escalate)",
     "app_model": "google/gemma-4-31b-it",
-    "source": "manual_testing/tickets/T10_intermittent_500"
+    "source": "demo_examples/tickets/T10_intermittent_500"
   },
   "ticket": {
     "title": "Random 500 errors since yesterday",

@@ -10,7 +10,7 @@
     "split": "held_out",
     "category": "Function calling",
     "app_model": "google/gemma-4-31b-it",
-    "source": "manual_testing/tickets/T04_tool_args_not_parsed"
+    "source": "demo_examples/tickets/T04_tool_args_not_parsed"
   },
   "ticket": {
     "title": "TypeError in tool handling",
